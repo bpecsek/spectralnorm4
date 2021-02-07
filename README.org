@@ -1,0 +1,17 @@
+* Spectralnorm4 
+
+** Usage
+
+** Installation
+
+** Author
+
++ Bela Pecsek (bela.pecsek@gmail.com)
+
+** Copyright
+
+Copyright (c) 2021 Bela Pecsek (bela.pecsek@gmail.com)
+
+** License
+
+Licensed under the LLGPL License.
