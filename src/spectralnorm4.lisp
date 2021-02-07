@@ -47,7 +47,7 @@
                       of-type double-float))))
 
 (defparameter *thread-count*
-  #+(and :sbcl :os-macosx :bsd) (cpus:get-number-of-processors)
+  #+(and :os-macosx :darwin) (cpus:get-number-of-processors)
   #+(and :sbcl :linux) (progn (define-alien-routine sysconf long (name int))
                               (sysconf 84))
   )
