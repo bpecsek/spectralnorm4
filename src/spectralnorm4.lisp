@@ -25,7 +25,7 @@
 (defun eval-At-times-u (u n Au start end)
   (declare (type int16 n start end)
            (type d-array U Au))
-  (Loop For i from start below end do
+  (loop for i from start below end do
         (setf (aref Au i)
               (loop for j below n
                     summing (* (aref u j) (eval-A j i))
@@ -40,11 +40,7 @@
                     summing (* (aref u j) (eval-A i j))
                       of-type double-float))))
 
-(defparameter *thread-count*
-  #+(and :os-macosx :darwin) (cpus:get-number-of-processors)
-  #+(and :sbcl :linux) (progn (define-alien-routine sysconf long (name int))
-                              (sysconf 84))
-  )
+(defparameter *thread-count* (cpus:get-number-of-processors))
 
 #+sb-thread
 (defun execute-parallel (start end function)
