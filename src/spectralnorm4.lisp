@@ -10,12 +10,6 @@
 ;;      * rearrange eval-a to make it more readable and a bit faster
 ;;    modified by andy
 
-;; this is our most expensive function.  optimized with the knowledge
-;; that 'n' will never be "huge".  this will break if 'n' exceeds
-;; approximately half of the square root of the largest fixnum
-;; supported by the implementation.  on 32-bit sbcl,
-;; 'most-positive-fixnum' is 536870911, and we can support values of
-;; 'n' above 11000.
 (declaim (optimize (speed 3) (safety 0) (space 0) (debug 0)))
 
 (in-package spectralnorm4)
@@ -29,7 +23,7 @@
      (/ (float (+ (ash (* n n+1) -1) ,i 1) 0d0))))
 
 (defun eval-At-times-u (u n Au start end)
-  (Declare (type int16 n start end)
+  (declare (type int16 n start end)
            (type d-array U Au))
   (Loop For i from start below end do
         (setf (aref Au i)
