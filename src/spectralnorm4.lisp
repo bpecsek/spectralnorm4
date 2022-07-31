@@ -45,14 +45,13 @@
 #+sb-thread
 (defun execute-parallel (start end function)
   (declare (optimize (speed 0)))
-  (let ((step (truncate (- end start) *thread-count*)))
-    (loop for index from start below end by step
-	        collecting (let ((start index)
-			                     (end (min end (+ index step))))
-		                   (sb-thread:make-thread
-			                  (lambda () (funcall function start end))))
-	          into threads
-	        finally (mapcar #'sb-thread:join-thread threads))))
+  (mapc #'sb-thread:join-thread
+          (loop with step = (truncate (- end start) (get-thread-count))
+                for index from start below end by step
+                collecting (let ((start index)
+                                 (end (min end (+ index step))))
+                             (sb-thread:make-thread
+                              (lambda () (funcall function start end)))))))
 
 #-sb-thread
 (defun execute-parallel (start end function)
@@ -67,19 +66,18 @@
                       (eval-At-times-u v n AtAu start end))))
 
 (defun spectralnorm (n)
-    (let ((u (make-array n :element-type 'double-float :initial-element 1.0d0))
-          (v (make-array n :element-type 'double-float))
-          (tmp (make-array n :element-type 'double-float)))
-      (declare (type d-array u v tmp))
-      (dotimes (i 10)
-        (eval-AtA-times-u u v tmp n 0 n)
-        (eval-AtA-times-u v u tmp n 0 n))
-      (let ((vBv 0.0d0)
-            (vv 0.0d0))
-        (dotimes (i n)
-          (incf vBv (* (aref u i) (aref v i)))
-          (incf vv (* (aref v i) (aref v i))))
-        (sqrt (the double-float (/ vBv vv))))))
+  (let ((u   (make-array (+ n 3) :element-type 'double-float :initial-element 1d0))
+        (v   (make-array (+ n 3) :element-type 'double-float))
+        (tmp (make-array (+ n 3) :element-type 'double-float)))
+    (declare (type d-array u v tmp))
+    (loop repeat 10 do
+      (eval-AtA-times-u u v tmp n 0 n)
+      (eval-AtA-times-u v u tmp n 0 n))
+    (loop for vu of-type double-float across u
+          for vi of-type double-float across v
+          summing (* vu vi) into uv of-type double-float
+          summing (* vi vi) into vv of-type double-float
+          finally (return (sqrt (/ uv vv))))))
 
 (defun main (&optional n-supplied)
   (let ((n (or n-supplied
